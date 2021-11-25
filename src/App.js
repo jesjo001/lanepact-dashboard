@@ -56,12 +56,30 @@ import rtlPlugin from "stylis-plugin-rtl";
 import { CacheProvider } from "@emotion/react";
 import createCache from "@emotion/cache";
 
-export default function App() {
+import { useHistory } from './store/_helpers'
+import { connect } from 'react-redux';
+import { history } from "./store/_helpers"
+import { alertActions } from "./store/_actions"
+import { PrivateRoute } from "./store/_components"
+import { useDispatch, useSelector } from 'react-redux';
+
+export default function App(props) {
   const [controller, dispatch] = useSoftUIController();
   const { direction, layout, openConfigurator } = controller;
   const [rtlCache, setRtlCache] = useState(null);
   const { pathname } = useLocation();
+  const alert = useSelector(state => state.alert);
+  const routeDispatch = useDispatch();
+  useEffect(() => {
+    history.listen((location, action) => {
+      // clear alert on location change
+      routeDispatch(alertActions.clear());
+    });
+  }, []);
 
+  if (alert && alert.message) {
+    toast.error(alert.message)
+  }
   // JSS presets for the rtl
   const jss = create({
     plugins: [...jssPreset().plugins, rtl()],
@@ -101,6 +119,7 @@ export default function App() {
       }
 
       if (route.route) {
+        // console.log("route is ", route.route)
         return <Route exact path={route.route} component={route.component} key={route.key} />;
       }
 
@@ -144,8 +163,12 @@ export default function App() {
           )}
           {layout === "vr" && <Configurator />}
           <Switch>
+
             {getRoutes(routes)}
-            <Redirect from="*" to="/dashboard" />
+            {/* <Redirect from="*" to="/authentication/sign-in" /> */}
+            {!localStorage.getItem('user') ?
+              (<Redirect to="/authentication/sign-in" />) : <Redirect from="*" to="/dashboard" />
+            }
           </Switch>
           <ToastContainer />
         </ThemeProvider>
@@ -165,10 +188,27 @@ export default function App() {
         )}
         {layout === "vr" && <Configurator />}
         <Switch>
+          {/* {!localStorage.getItem('user') ?? 
+          (<Redirect to="/authentication/sign-in" />)
+          } */}
           {getRoutes(routes)}
-          <Redirect from="*" to="/dashboard" />
+
+          {/* <Redirect from="*" to="/authentication/sign-in" /> */}
+          {!localStorage.getItem('user') ?
+              (<Redirect to="/authentication/sign-in" />) : <Redirect from="*" to="/dashboard" />
+            }
         </Switch>
-        <ToastContainer />
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
       </ThemeProvider>
     </StyledEngineProvider>
   );

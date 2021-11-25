@@ -15,17 +15,24 @@ Coded by www.creative-tim.com
 
 import React from "react";
 import ReactDOM from "react-dom";
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter, Router } from "react-router-dom";
+import { Provider } from 'react-redux';
+import { store } from './store/_helpers';
 import App from "App";
+import { history } from "./store/_helpers"
 
 // Soft UI Dashboard React Context Provider
 import { SoftUIControllerProvider } from "context";
 
 ReactDOM.render(
-  <BrowserRouter>
+
+  <Provider store={store}>
     <SoftUIControllerProvider>
-      <App />
+      <Router history={history} >
+        <App />
+      </Router>
     </SoftUIControllerProvider>
-  </BrowserRouter>,
+  </Provider>
+  ,
   document.getElementById("root")
 );
