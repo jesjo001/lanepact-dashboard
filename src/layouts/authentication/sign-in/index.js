@@ -13,10 +13,11 @@ Coded by www.creative-tim.com
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 // react-router-dom components
-import { Link, useHistory } from "react-router-dom";
+import { Link, useHistory, useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from 'react-redux';
 
 // @mui material components
 import Switch from "@mui/material/Switch";
@@ -39,9 +40,11 @@ import CheckButton from "react-validation/build/button";
 
 import { isEmail } from "validator";
 
+import { userActions } from "../../../store/_actions";
+
 //toast notification
 import { toast } from 'react-toastify';
-import {login} from "../../../components/Auth/AuthService";
+import { login } from "../../../components/Auth/AuthService";
 
 function SignIn() {
   const [rememberMe, setRememberMe] = useState(true);
@@ -52,35 +55,40 @@ function SignIn() {
   const [password, setPassword] = useState("");
   const history = useHistory()
   const handleSetRememberMe = () => setRememberMe(!rememberMe);
-
-  const handleSubmitForm =()=> {
-    if(email === "") return toast.error("Email must be a vailid email")
-    if(!isEmail(email)) return toast.error('Pls enter a valid Email')
-    if(password === "" || password.length < 8) return toast.error("Password must contain at lease 8 characters ")
+  const dispatch = useDispatch();
+  const handleSubmitForm = () => {
+    if (email === "") return toast.error("Email must be a vailid email")
+    if (!isEmail(email)) return toast.error('Pls enter a valid Email')
+    if (password === "" || password.length < 8) return toast.error("Password must contain at lease 8 characters ")
 
     // const pattern = new RegExp(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{6,}$/);
     // if(!pattern.test(password)) toast.error("Pass must contain a digit, lowercase/uppercase and special character ")
- 
-    login(email, password).then(
-      () => {
-        history.push("/dashboard");
-        window.location.reload();
-      },
-      error => {
-        const resMessage =
-          (error.response &&
-            error.response.data &&
-            error.response.data.message) ||
-          error.message ||
-          error.toString();
 
-          console.log(resMessage)
+    // login(email, password).then(
+    //   () => {
+    //     history.push("/dashboard");
+    //     window.location.reload();
+    //   },
+    //   error => {
+    //     const resMessage =
+    //       (error.response &&
+    //         error.response.data &&
+    //         error.response.data.message) ||
+    //       error.message ||
+    //       error.toString();
 
-          setLoading(false)
-          setError(true)
-          setErrorMsg(resMessage)
-      }
-    );
+    //     console.log(resMessage)
+
+    //     setLoading(false)
+    //     setError(true)
+    //     setErrorMsg(resMessage)
+    //   }
+    // );
+
+    const { from } = location.state || { from: { pathname: "/authentication/sign-in" } };
+    dispatch(userActions.login(email, password, from));
+
+
   }
   console.log(email)
   return (
@@ -96,7 +104,7 @@ function SignIn() {
               Email
             </SuiTypography>
           </SuiBox>
-          <SuiInput type="email" placeholder="Email" value={email} onChange={(e)=> setEmail(e.target.value)} />
+          <SuiInput type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
         </SuiBox>
         <SuiBox mb={2}>
           <SuiBox mb={1} ml={0.5}>

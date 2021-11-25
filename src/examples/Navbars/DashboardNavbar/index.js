@@ -152,7 +152,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
               color={light ? "white" : "inherit"}
               customClass={classes.navbar_section_desktop}
             >
-              <Link to="/authentication/sign-in/basic">
+              <Link to="/authentication/sign-in">
                 <IconButton className={classes.navbar_icon_button}>
                   <Icon className={light ? "text-white" : "text-dark"}>account_circle</Icon>
                   <SuiTypography
